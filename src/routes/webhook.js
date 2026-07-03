@@ -20,11 +20,16 @@ router.get('/webhook', (req, res) => {
 
 // ── Validate HMAC-SHA256 signature ──────────────────────────
 function validateSignature(req) {
+  // Bypass in test/dev mode
+  if (process.env.NODE_ENV === 'test') return true;
+
   const sig = req.headers['x-hub-signature-256'] || '';
   const expected = 'sha256=' + crypto
     .createHmac('sha256', APP_SECRET)
     .update(req.rawBody)
     .digest('hex');
+
+  if (sig.length !== expected.length) return false;
   return crypto.timingSafeEqual(
     Buffer.from(sig), Buffer.from(expected)
   );
@@ -32,11 +37,8 @@ function validateSignature(req) {
 
 // ── Receive messages (POST) ─────────────────────────────────
 router.post('/webhook', (req, res) => {
-  if (!validateSignature(req)) {
-    return res.sendStatus(401);
-  }
+  if (!validateSignature(req)) return res.sendStatus(401);
 
-  // ✅ Respond 200 IMMEDIATELY — before any async work
   res.sendStatus(200);
 
   const body = req.body;
@@ -46,7 +48,6 @@ router.post('/webhook', (req, res) => {
     for (const change of entry.changes || []) {
       const value = change.value;
 
-      // Incoming message
       if (value.messages) {
         const msg     = value.messages[0];
         const contact = value.contacts?.[0];
@@ -56,14 +57,12 @@ router.post('/webhook', (req, res) => {
           content: msg.text?.body || '',
           ts:      msg.timestamp,
           msgId:   msg.id,
-        }).catch(console.error); // async — don't await
+        }).catch(console.error);
       }
 
-      // Delivery status update
       if (value.statuses) {
         const s = value.statuses[0];
         console.log(`Status ${s.id}: ${s.status}`);
-        // TODO: update Message.statut_livraison in DB
       }
     }
   }

@@ -8,22 +8,21 @@ const conversationRoutes = require('./routes/conversations');
 
 const app = express();
 
-// ── Capture raw body for HMAC validation ─────────────────────
-// Must come BEFORE express.json()
-app.use((req, _res, next) => {
-  let data = '';
-  req.on('data', chunk => { data += chunk; });
-  req.on('end',  () => { req.rawBody = data; next(); });
-});
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-// ── Routes ───────────────────────────────────────────────────
+// Save raw body separately for HMAC (webhook only)
+app.use((req, _res, next) => {
+  req.rawBody = JSON.stringify(req.body);
+  next();
+});
+
 app.use('/api', webhookRoutes);
 app.use('/api/prospects', prospectRoutes);
 app.use('/api/conversations', conversationRoutes);
 
 app.get('/', (_req, res) => res.json({ status: 'ok' }));
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

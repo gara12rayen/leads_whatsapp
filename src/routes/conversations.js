@@ -6,7 +6,7 @@ const router  = express.Router();
 router.get('/:id/messages', async (req, res) => {
   try {
     const [messages] = await db.query(
-      'SELECT * FROM messages WHERE conversation_id = ? ORDER BY id ASC',
+      'SELECT * FROM messages WHERE conversation_id = ? ORDER BY idMessage ASC',
       [req.params.id]
     );
     res.json(messages);
