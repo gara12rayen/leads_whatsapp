@@ -2,7 +2,7 @@ const express = require('express');
 const db      = require('../config/db');
 const router  = express.Router();
 
-// GET /api/prospects — list all
+// api/prospects — list all
 router.get('/', async (_req, res) => {
   try {
     const [rows] = await db.query(
@@ -26,7 +26,7 @@ router.get('/', async (_req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/prospects/dashboard/kpis — MUST be before /:id
+// GET /api/prospects/dashboard/kpis
 router.get('/dashboard/kpis', async (_req, res) => {
   try {
     const [[totals]] = await db.query(`

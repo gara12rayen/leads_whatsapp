@@ -3,7 +3,7 @@ const fetch = require('node-fetch');
 const BASE_URL = `https://graph.facebook.com/v19.0/${process.env.WHATSAPP_PHONE_ID}/messages`;
 const TOKEN    = process.env.WHATSAPP_TOKEN;
 
-// ── Send a plain text message ────────────────────────────────
+// Send a plain text message
 async function sendText(to, text) {
   const res = await fetch(BASE_URL, {
     method:  'POST',
@@ -27,7 +27,7 @@ async function sendText(to, text) {
   return res.json();
 }
 
-// ── Mark incoming message as read ────────────────────────────
+//Mark incoming message as read
 async function markRead(messageId) {
   await fetch(BASE_URL, {
     method:  'POST',

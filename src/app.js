@@ -22,7 +22,7 @@ app.use('/api', webhookRoutes);
 app.use('/api/prospects', prospectRoutes);
 app.use('/api/conversations', conversationRoutes);
 
-app.get('/', (_req, res) => res.json({ status: 'ok' }));
+app.get('/', (_req, res) => res.json({ status: 'jwk bhyyyyy ' }));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

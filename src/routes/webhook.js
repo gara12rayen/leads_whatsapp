@@ -5,7 +5,7 @@ const { handleIncomingMessage } = require('../services/bot');
 const router = express.Router();
 const APP_SECRET = process.env.WHATSAPP_APP_SECRET;
 
-// ── Webhook verification (GET) ──────────────────────────────
+// Webhook verification
 router.get('/webhook', (req, res) => {
   const mode      = req.query['hub.mode'];
   const token     = req.query['hub.verify_token'];
@@ -18,7 +18,7 @@ router.get('/webhook', (req, res) => {
   res.sendStatus(403);
 });
 
-// ── Validate HMAC-SHA256 signature ──────────────────────────
+// Validate HMAC-SHA256 signature
 function validateSignature(req) {
   // Bypass in test/dev mode
   if (process.env.NODE_ENV === 'test') return true;
@@ -35,7 +35,7 @@ function validateSignature(req) {
   );
 }
 
-// ── Receive messages (POST) ─────────────────────────────────
+//Receive messages
 router.post('/webhook', (req, res) => {
   if (!validateSignature(req)) return res.sendStatus(401);
 
