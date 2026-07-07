@@ -8,15 +8,13 @@ const conversationRoutes = require('./routes/conversations');
 
 const app = express();
 
-app.use(express.json());
+app.use(express.json({
+  verify: (req, _res, buf) => {
+    req.rawBody = buf; // Buffer brut, capturé AVANT le parsing
+  }
+}));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
-
-// Save raw body separately for HMAC (webhook only)
-app.use((req, _res, next) => {
-  req.rawBody = JSON.stringify(req.body);
-  next();
-});
 
 app.use('/api', webhookRoutes);
 app.use('/api/prospects', prospectRoutes);
