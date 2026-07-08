@@ -5,6 +5,7 @@ const morgan  = require('morgan');
 const webhookRoutes      = require('./routes/webhook');
 const prospectRoutes     = require('./routes/prospects');
 const conversationRoutes = require('./routes/conversations');
+const produitRoutes      = require('./routes/produits');
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use((req, _res, next) => {
 app.use('/api', webhookRoutes);
 app.use('/api/prospects', prospectRoutes);
 app.use('/api/conversations', conversationRoutes);
+app.use('/api/produits', produitRoutes);
 
 app.get('/', (_req, res) => res.json({ status: 'jwk bhyyyyy ' }));
 
