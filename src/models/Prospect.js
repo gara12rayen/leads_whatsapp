@@ -23,27 +23,29 @@ const Prospect = {
       'UPDATE prospects SET statut = ? WHERE id = ?', [true, id]
     );
   },
-};
 
-const Conversation = {
-  create: async (prospect_id) => {
-    const [result] = await db.query(
-      `INSERT INTO conversations (dateDebut, statut, prospect_id)
-       VALUES (NOW(), 'EN_COURS', ?)`,
-      [prospect_id]
-    );
-    return { id: result.insertId };
-  },
-
-  findByProspect: async (prospect_id) => {
+  // NOUVEAU : liste tous les prospects d'une société avec leur dernier score
+  getAllWithScores: async (societe_id) => {
     const [rows] = await db.query(
-      `SELECT * FROM conversations
-       WHERE prospect_id = ?
-       ORDER BY dateDebut DESC LIMIT 1`,
-      [prospect_id]
+      `SELECT
+         p.id, p.nomComplet, p.numTelephone, p.Email, p.statut,
+         c.id AS conversation_id, c.statut AS conversation_statut,
+         i.score, i.created_at AS score_date
+       FROM prospects p
+       LEFT JOIN conversations c ON c.prospect_id = p.id
+       LEFT JOIN interactions i ON i.conversation_id = c.id
+       WHERE p.societe_id = ?
+       ORDER BY p.id, i.created_at DESC`,
+      [societe_id]
     );
-    return rows[0] || null;
+
+    // ne garder que la ligne la plus récente (score le plus récent) par prospect
+    const map = new Map();
+    for (const row of rows) {
+      if (!map.has(row.id)) map.set(row.id, row);
+    }
+    return Array.from(map.values());
   },
 };
 
-module.exports = { Prospect, Conversation };
+module.exports = { Prospect };

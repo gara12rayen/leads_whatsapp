@@ -1,3 +1,5 @@
+const fetch = require('node-fetch');
+
 const BASE_URL = `https://graph.facebook.com/v19.0/${process.env.WHATSAPP_PHONE_ID}/messages`;
 const TOKEN    = process.env.WHATSAPP_TOKEN;
 
@@ -25,9 +27,9 @@ async function sendText(to, text) {
   return res.json();
 }
 
-// Mark incoming message as read
+//Mark incoming message as read
 async function markRead(messageId) {
-  const res = await fetch(BASE_URL, {
+  await fetch(BASE_URL, {
     method:  'POST',
     headers: {
       'Authorization': `Bearer ${TOKEN}`,
@@ -39,13 +41,6 @@ async function markRead(messageId) {
       message_id: messageId,
     }),
   });
-
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(`markRead failed: ${JSON.stringify(err)}`);
-  }
-
-  return res.json();
 }
 
 module.exports = { sendText, markRead };
