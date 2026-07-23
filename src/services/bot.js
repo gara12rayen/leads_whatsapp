@@ -1,5 +1,7 @@
-const { Prospect, Conversation } = require('../models/Prospect');
+const { Prospect } = require('../models/Prospect');
+const { Conversation } = require('../models/Conversation');
 const Message = require('../models/Message');
+const { Produit } = require('../models/Produit');
 const Groq = require('groq-sdk');
 
 async function handleIncomingMessage({ phone, name, content, ts, msgId }) {
@@ -75,6 +77,14 @@ async function handleIncomingMessage({ phone, name, content, ts, msgId }) {
         content: m.contenu,
       }));
 
+      // Fetch real product catalog for this prospect's société
+      const produits = await Produit.getAllBySociete(prospect.societe_id);
+      const catalogue = produits.length
+        ? produits.map(p =>
+            `- ${p.nom} : ${p.prix} DT${p.description ? ' — ' + p.description : ''}`
+          ).join('\n')
+        : 'Aucun produit disponible actuellement.';
+
       const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
       const completion = await groq.chat.completions.create({
@@ -84,11 +94,15 @@ async function handleIncomingMessage({ phone, name, content, ts, msgId }) {
           {
             role: 'system',
             content: `Tu es un assistant commercial chaleureux et professionnel.
+Voici la liste des produits/services réellement disponibles :
+${catalogue}
+
 Tu qualifies le prospect ${name} en posant des questions sur :
 1. Son besoin principal
 2. Son budget
 3. Son délai de décision
 Réponds toujours en 2-3 phrases maximum. Sois naturel et humain.
+N'invente jamais de produit qui n'est pas dans la liste ci-dessus.
 Si le prospect a répondu à toutes les questions, résume et dis que l'équipe va le contacter.`,
           },
           ...history,

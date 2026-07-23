@@ -17,4 +17,4 @@ const Conversation = {
   },
 };
 
-module.exports = { Prospect, Conversation };
+module.exports = { Conversation };
